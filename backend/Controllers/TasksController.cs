@@ -5,8 +5,10 @@ using System.Threading.Tasks;
 
 using TaskManager.Models;
 using TaskManager.Data;
+using Microsoft.AspNetCore.Authorization;
 namespace TaskManager.API
 {
+    [Authorize]
     [Route("tasks")]
     [ApiController]
     public class TasksController : ControllerBase

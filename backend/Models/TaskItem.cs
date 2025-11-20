@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace TaskManager.Models
 {
     public class TaskItem
@@ -6,6 +8,8 @@ namespace TaskManager.Models
         public string Title { get; set; } = string.Empty;
         public bool IsDone { get; set; }
         public int UserId { get; set; }
-        public User User { get; set; } = null!;
+
+        [JsonIgnore]
+        public User? User { get; set; }
     }
 }
