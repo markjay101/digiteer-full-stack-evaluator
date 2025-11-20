@@ -26,36 +26,56 @@ namespace task_manager_api.Controllers
         [HttpPost("signup")]
         public async Task<IActionResult> Signup([FromBody] User model)
         {
-            if (_context.Users.Any(u => u.Email == model.Email))
-                return BadRequest("Email already exists");
+            try
+            {
+                if (await _context.Users.AnyAsync(u => u.Email == model.Email))
+                    return BadRequest(new { message = "Email already exists" });
 
-            _context.Users.Add(model);
-            await _context.SaveChangesAsync();
-            return Ok(new { message = "User created successfully" });
+                _context.Users.Add(model);
+                await _context.SaveChangesAsync();
+
+                return Ok(new { message = "User created successfully" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = ex.Message, message = "An error occurred while creating the user." });
+            }
         }
 
         [HttpPost("login")]
-        public IActionResult Login([FromBody] User model)
+        public async Task<IActionResult> Login([FromBody] User model)
         {
-            var user = _context.Users.SingleOrDefault(u => u.Email == model.Email && u.PasswordHash == model.PasswordHash);
-            if (user == null) return Unauthorized("Invalid credentials");
-
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(_configuration["Jwt:Key"]);
-
-            var tokenDescriptor = new SecurityTokenDescriptor
+            try
             {
-                Subject = new ClaimsIdentity(new[]
+                var user = await _context.Users
+                    .SingleOrDefaultAsync(u => u.Email == model.Email && u.PasswordHash == model.PasswordHash);
+
+                if (user == null)
+                    return Unauthorized(new { message = "Invalid credentials" });
+
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var key = Encoding.ASCII.GetBytes(_configuration["Jwt:Key"]);
+
+                var tokenDescriptor = new SecurityTokenDescriptor
                 {
+                    Subject = new ClaimsIdentity(new[]
+                    {
                     new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                     new Claim(ClaimTypes.Email, user.Email)
                 }),
-                Expires = DateTime.UtcNow.AddHours(1),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-            };
+                    Expires = DateTime.UtcNow.AddHours(1),
+                    SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+                };
 
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-            return Ok(new { token = tokenHandler.WriteToken(token) });
+                var token = tokenHandler.CreateToken(tokenDescriptor);
+                var tokenString = tokenHandler.WriteToken(token);
+
+                return Ok(new { token = tokenString });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = ex.Message, message = "An error occurred during login." });
+            }
         }
     }
 }
