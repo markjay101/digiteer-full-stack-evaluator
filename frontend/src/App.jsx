@@ -1,13 +1,37 @@
-import './App.css'
-import Tasks from "./Tasks"
+import "./App.css";
+import Tasks from "./Tasks";
+import { Routes, Route } from "react-router-dom";
+import Login from "./Login";
+import ProtectedRoute from "./components/ProtectedRoute";
+import { useNavigate } from "react-router-dom";
+import { authService } from "./services/authService";
 
 function App() {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    authService.logout(); // remove token
+    navigate("/login"); // redirect to login page
+  };
+
   return (
-    <div className="app">
-      <h1>📝 React Task Evaluator</h1>
-      <Tasks />
-    </div>
+    <Routes>
+      <Route path="/login" element={<Login />} />
+
+      <Route
+        path="/"
+        element={
+          <ProtectedRoute>
+            <div className="app">
+              <button onClick={handleLogout}>Logout</button>
+              <h1>📝 React Task Evaluator</h1>
+              <Tasks />
+            </div>
+          </ProtectedRoute>
+        }
+      />
+    </Routes>
   );
 }
 
-export default App
+export default App;
