@@ -22,8 +22,13 @@ function App() {
         path="/"
         element={
           <ProtectedRoute>
-            <div className="app">
-              <button onClick={handleLogout}>Logout</button>
+            <div className="app d-flex flex-column">
+              <button
+                className="ms-auto btn btn-sm btn-secondary"
+                onClick={handleLogout}
+              >
+                Logout
+              </button>
               <h1>📝 React Task Evaluator</h1>
               <Tasks />
             </div>

@@ -14,7 +14,7 @@ export default function Login() {
 
     try {
       await authService.login(username, password);
-      navigate("/"); // redirect to home or dashboard
+      navigate("/");
     } catch {
       setError("Invalid username or password");
     }
