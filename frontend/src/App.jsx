@@ -2,6 +2,7 @@ import "./App.css";
 import Tasks from "./Tasks";
 import { Routes, Route } from "react-router-dom";
 import Login from "./Login";
+import Signup from "./Signup";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { useNavigate } from "react-router-dom";
 import { authService } from "./services/authService";
@@ -17,6 +18,7 @@ function App() {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
+      <Route path="/signup" element={<Signup />} />
 
       <Route
         path="/"
